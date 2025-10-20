@@ -8,6 +8,27 @@ function draw_sprite(sprite, x, y, rotation, image_xscale, image_yscale, draw_fr
     end
 end
 
+function new_particle(xx, yy)
+    local part = {
+        x = xx,
+        y = yy
+    }
+
+    function part:init()
+
+    end
+
+    function part:update()
+
+    end
+
+    function part:draw()
+
+    end
+
+    return part
+end
+
 function new_player(xx, yy)
     local p = {
         x = xx,
@@ -22,7 +43,7 @@ function new_player(xx, yy)
         angle_increment = 300, -- 5px
         shooting_counter = 0,
         rotation_deg = 0,
-        shooting_cooldown = 60
+        shooting_cooldown = 15
     }
 
     function p:decrement_shoot_cooldown()
@@ -30,7 +51,7 @@ function new_player(xx, yy)
         if self.shooting_counter > 0 then
             self.shooting_counter = self.shooting_counter - 1
             if self.shooting_counter < 0 then
-            self.shooting_counter = 0
+                self.shooting_counter = 0
             end
         end
     end
@@ -69,10 +90,10 @@ function new_player(xx, yy)
         self.x = self.x + self.vx * dt
         self.y = self.y + self.vy * dt
 
-        if love.keyboard.isDown("space") and self.shooting_counter == 0 then
+        if love.keyboard.isDown('z') and self.shooting_counter == 0 then
             self.shooting_counter = self.shooting_cooldown
 
-            local b = new_pbullet(self.x, self.y, self.rotation_deg)
+            local b = new_pbullet(self.x, self.y, math.rad(self.rotation_deg))
             table.insert(bullets, b)
         end
 
@@ -93,32 +114,41 @@ function new_player(xx, yy)
 end
 
 --player bullet
-function new_pbullet(xx, yy, angle_deg)
-	local bul = {
-		x = xx,
-		y = yy,
-		spd = 480,
-		sprite = nil,
-        run_once = false,
-        rotation = angle_deg
-	}
+function new_pbullet(xx, yy, rotation_rad)
+    local bul = {
+        x = xx,
+        y = yy,
+        spd = 480,
+        vx = 0,
+        vy = 0,
+        sprite = nil,
+        rotation_rad = rotation_rad,
+        run_once = false
+    }
 
     function bul:init()
         if self.run_once then
             return
         end
-
+        
         self.sprite = bullet_sprite
+        
+        --set speed
+        self.vx = math.cos(rotation_rad) * self.spd
+        self.vy = math.sin(rotation_rad) * self.spd
 
         self.run_once = true
     end
 
-	function bul:update(dt)
+    function bul:update(dt)
         self:init()
-	end
+        -- move at constant velocity
+        self.x = self.x + self.vx * dt
+        self.y = self.y + self.vy * dt
+    end
 
 	function bul:draw()
-		draw_sprite(self.sprite, self.x, self.y, self.rotation, 1, 1, true)
+		draw_sprite(self.sprite, self.x, self.y, rotation_rad, 1, 1, true)
 	end
 
 	function bul:is_offscreen()
