@@ -29,6 +29,14 @@ function utils.draw_sprite(sprite, x, y, rotation, image_xscale, image_yscale, d
     end
 end
 
+function utils.lengthdir_x(len, dir)
+    return len * math.cos(dir * math.pi / -180)
+end
+
+function utils.lengthdir_y(len, dir)
+    return len * math.sin(dir * math.pi / -180)
+end
+
 local sprite_path = "assets/sprites/"
 
 function utils.load_sprite(sprite_name)

@@ -2,6 +2,7 @@
 local utils = require("src.utils")
 local player = require("src.player")
 local bullet = require("src.bullet")
+local particle = require("src.particle")
 
 --globals
 width, height = 320, 240
@@ -39,23 +40,42 @@ function love.load()
     
     --tables
     bullets = {}
+    particles = {}
     
     --callbacks (lambdas)
     Player.on.shoot = function(x, y, rot)
         local b = bullet.new_bullet(x, y, rot)
         table.insert(bullets, b)
     end
+
+    -- add particle spawner callback
+    Player.on.move = function(x, y, rot, xscale, yscale)
+        local p = particle.new_particle(x, y, xscale, yscale, rot)
+        p:init()
+        table.insert(particles, p)
+    end
 end
 
 function love.update(dt)
     Player:update(dt)
 
+    --update bullets
     for i = #bullets, 1, -1 do
         local b = bullets[i]
         b:update(dt)
 
         if b:is_offscreen() then
             table.remove(bullets, i)
+        end
+    end
+
+    --update particles
+    for i = #particles, 1, -1 do
+        local p = particles[i]
+        p:update(dt)
+        
+        if p.flag_for_deletion then
+            table.remove(particles, i)
         end
     end
 end
@@ -77,7 +97,14 @@ function love.draw()
     local offset_y = (win_h/scale - height) / 2
     love.graphics.translate(offset_x, offset_y)
 
-    -- now draw your world
+    --now draw the world
+
+    --draw particles
+    for i = #particles, 1, -1 do
+        local p = particles[i]
+        p:draw()
+    end
+
     Player:draw()
 
     --draw bullets

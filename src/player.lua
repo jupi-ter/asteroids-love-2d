@@ -15,7 +15,8 @@ function player.new_player(x, y)
         shooting_counter = 0,
         rotation_deg = 0,
         shooting_cooldown = 60,
-        on = { shoot = nil, move = nil } -- events
+        on = { shoot = nil, move = nil }, -- events
+        particle_frame = 0
     }
 
     function p:decrement_shoot_cooldown()
@@ -53,6 +54,27 @@ function player.new_player(x, y)
             self.vx = self.vx + math.cos(rotation_rad) * self.accel_delta * dt
             self.vy = self.vy + math.sin(rotation_rad) * self.accel_delta * dt
 
+            self.particle_frame = self.particle_frame + 1
+
+            --spawn a particle every 8 frames
+            if self.on.move and self.particle_frame % 8 == 0 then
+                self.particle_frame = 0
+
+                -- Add perpendicular offset
+                local noise_amount = math.random(-2, 2)
+                local perpendicular_angle = rotation_rad + math.pi/2  -- 90 degrees
+                
+                local offset_x = math.cos(perpendicular_angle) * noise_amount
+                local offset_y = math.sin(perpendicular_angle) * noise_amount
+                
+                self.on.move(
+                    self.x + offset_x, 
+                    self.y + offset_y, 
+                    rotation_rad,  -- keep particle aligned with ship
+                    1.0, 
+                    1.0
+                )
+            end
         end
 
         -- apply friction / drag
@@ -74,6 +96,7 @@ function player.new_player(x, y)
         end
 
         -- todo: screen wrapping
+        -- screen clamping
         if self.x > width then self.x = width end
         if self.x < 0 then self.x = 0 end
         if self.y < 0 then self.y = 0 end
