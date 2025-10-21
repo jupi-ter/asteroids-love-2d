@@ -40,7 +40,7 @@ function bullet.new_bullet(x, y, rotation_rad)
 	end
 
 	function bul:is_offscreen()
-		return self.x < 0 or self.x > 128 or self.y < 0 or self.y > 128
+		return self.x < 0 or self.x > width or self.y < 0 or self.y > height
 	end
 
     return bul

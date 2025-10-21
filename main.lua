@@ -4,9 +4,9 @@ local player = require("src.player")
 local bullet = require("src.bullet")
 
 --globals
-width, height = 128, 128
+width, height = 320, 240
 
-function love.load()
+function window_setup()
     --setup window
     love.window.setMode(width, height, {
         fullscreen = false,
@@ -21,14 +21,20 @@ function love.load()
 
     -- Background color (RGB 0.0 - 1.0)
     love.graphics.setBackgroundColor(0.0, 0.0, 0.0)
+end
 
-    --load sprites first
+function load_sprites()
     player_center_sprite = utils.load_sprite("ship")
     bullet_sprite = utils.load_sprite("bullet_2")
     particle_sprite = utils.load_sprite("particle")
+end
+
+function love.load()
+    window_setup()
+    load_sprites()
 
     --objects
-    Player = player.new_player(64,64)
+    Player = player.new_player(width/2,height/2)
     Player:init()
     
     --tables

@@ -74,10 +74,10 @@ function player.new_player(x, y)
         end
 
         -- todo: screen wrapping
-        if self.x > 128 then self.x = 128 end
+        if self.x > width then self.x = width end
         if self.x < 0 then self.x = 0 end
         if self.y < 0 then self.y = 0 end
-        if self.y > 128 then self.y = 128 end
+        if self.y > height then self.y = height end
     end
 
     function p:draw()
