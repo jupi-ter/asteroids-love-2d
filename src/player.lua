@@ -67,12 +67,15 @@ function player.new_player(x, y)
                 local offset_x = math.cos(perpendicular_angle) * noise_amount
                 local offset_y = math.sin(perpendicular_angle) * noise_amount
                 
+                local color = utils.colors.YELLOW
+
                 self.on.move(
                     self.x + offset_x, 
                     self.y + offset_y, 
                     rotation_rad,  -- keep particle aligned with ship
                     1.0, 
-                    1.0
+                    1.0,
+                    color
                 )
             end
         end

@@ -49,8 +49,8 @@ function love.load()
     end
 
     -- add particle spawner callback
-    Player.on.move = function(x, y, rot, xscale, yscale)
-        local p = particle.new_particle(x, y, xscale, yscale, rot)
+    Player.on.move = function(x, y, rot, xscale, yscale, color)
+        local p = particle.new_particle(x, y, xscale, yscale, rot, color)
         p:init()
         table.insert(particles, p)
     end
