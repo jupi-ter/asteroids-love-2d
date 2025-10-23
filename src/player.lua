@@ -98,18 +98,12 @@ function player.new_player(x, y)
             end
         end
 
-        -- todo: screen wrapping
         -- screen clamping
-        if self.x > width then self.x = width end
-        if self.x < 0 then self.x = 0 end
-        if self.y < 0 then self.y = 0 end
-        if self.y > height then self.y = height end
+        utils.screen_wrap(self)
     end
 
     function p:draw()
-        if self.sprite ~= nil then
-            utils.draw_sprite(self.sprite, self.x, self.y, math.rad(self.rotation_deg), 1, 1, true)
-        end
+        utils.draw_sprite(self.sprite, self.x, self.y, math.rad(self.rotation_deg), 1, 1, true)
     end
 
     return p

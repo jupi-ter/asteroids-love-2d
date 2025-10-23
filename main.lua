@@ -3,18 +3,19 @@ local utils = require("src.utils")
 local player = require("src.player")
 local bullet = require("src.bullet")
 local particle = require("src.particle")
+local asteroid = require("src.asteroid")
 
 --globals
-width, height = 320, 240
+screen_width, screen_height = 160, 144
 
 function window_setup()
     --setup window
-    love.window.setMode(width, height, {
+    love.window.setMode(screen_width, screen_height, {
         fullscreen = false,
         resizable = true,
         vsync = true,
-        minwidth = width,
-        minheight = height
+        minwidth = screen_width,
+        minheight = screen_height
     })
 
     -- Optional: nicer scaling for pixel art
@@ -28,6 +29,9 @@ function load_sprites()
     player_center_sprite = utils.load_sprite("ship")
     bullet_sprite = utils.load_sprite("bullet_2")
     particle_sprite = utils.load_sprite("particle")
+    asteroid_large = utils.load_sprite("asteroid_large")
+    asteroid_medium = utils.load_sprite("asteroid_medium")
+    asteroid_small = utils.load_sprite("asteroid_small")
 end
 
 function love.load()
@@ -35,13 +39,18 @@ function love.load()
     load_sprites()
 
     --objects
-    Player = player.new_player(width/2,height/2)
+    Player = player.new_player(screen_width/2, screen_height/2)
     Player:init()
     
     --tables
     bullets = {}
     particles = {}
+    asteroids = {}
     
+    local a = asteroid.new_asteroid(0, 0, asteroid.sizes.LARGE)
+    a:init()
+    table.insert(asteroids, a)
+
     --callbacks (lambdas)
     Player.on.shoot = function(x, y, rot)
         local b = bullet.new_bullet(x, y, rot)
@@ -78,12 +87,18 @@ function love.update(dt)
             table.remove(particles, i)
         end
     end
+
+    --update asteroids
+    for i = #asteroids, 1, -1 do
+        local a = asteroids[i]
+        a:update(dt)
+    end
 end
 
 function love.draw()
     local win_w, win_h = love.graphics.getDimensions()
-    local scale_x = win_w / width
-    local scale_y = win_h / height
+    local scale_x = win_w / screen_width
+    local scale_y = win_h / screen_height
 
     -- uniform scaling (preserves aspect ratio, no stretching)
     local scale = math.min(scale_x, scale_y)
@@ -93,8 +108,8 @@ function love.draw()
     love.graphics.scale(scale, scale)
 
     -- center the game world in the window
-    local offset_x = (win_w/scale - width) / 2
-    local offset_y = (win_h/scale - height) / 2
+    local offset_x = (win_w/scale - screen_width) / 2
+    local offset_y = (win_h/scale - screen_height) / 2
     love.graphics.translate(offset_x, offset_y)
 
     --now draw the world
@@ -111,6 +126,11 @@ function love.draw()
     for i = #bullets, 1, -1 do
         local b = bullets[i]
         b:draw()
+    end
+
+    for i = #asteroids, 1, -1 do
+        local a = asteroids[i]
+        a:draw()
     end
 
     --stop drawing
