@@ -1,4 +1,5 @@
 local utils = {}
+hc = require("HC")
 
 utils.colors = {
     BLACK = {0.0, 0.0, 0.0},
@@ -50,6 +51,12 @@ function utils.screen_wrap(object)
         object.y = screen_height + half_sh
     elseif object.y - half_sh > screen_height then
         object.y = -half_sh
+    end
+end
+
+function utils.check_collisions(bbox)
+    for shape, delta in pairs(hc.collisions(bbox)) do
+        text[#text+1] = string.format("Colliding. Separating vector = (%s,%s)", delta.x, delta.y)
     end
 end
 

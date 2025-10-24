@@ -16,7 +16,8 @@ function player.new_player(x, y)
         rotation_deg = 0,
         shooting_cooldown = 60,
         on = { shoot = nil, move = nil }, -- events
-        particle_frame = 0
+        particle_frame = 0,
+        bbox = hc.rectangle(x, y, 6, 6)
     }
 
     function p:decrement_shoot_cooldown()
@@ -48,6 +49,9 @@ function player.new_player(x, y)
         if move_right then
             self.rotation_deg = self.rotation_deg + (self.angle_increment * dt)
         end
+
+        -- rotate collision box
+        self.bbox:setRotation(math.rad(self.rotation_deg))
 
         if move_up then
             local rotation_rad = math.rad(self.rotation_deg)
@@ -93,6 +97,9 @@ function player.new_player(x, y)
         self.x = self.x + self.vx * dt
         self.y = self.y + self.vy * dt
 
+        --move collision box
+        self.bbox:moveTo(self.x, self.y)
+
         if love.keyboard.isDown('z') and self.shooting_counter == 0 then
             self.shooting_counter = self.shooting_cooldown
 
@@ -103,12 +110,17 @@ function player.new_player(x, y)
             end
         end
 
+        utils.check_collisions(self.bbox)
+
         -- screen clamping
         utils.screen_wrap(self)
     end
 
     function p:draw()
         utils.draw_sprite(self.sprite, self.x, self.y, math.rad(self.rotation_deg), 1, 1, true)
+        love.graphics.setColor(1.0, 0.0, 1.0, 0.5)
+        self.bbox:draw('fill')
+        love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
     end
 
     return p

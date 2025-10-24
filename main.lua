@@ -6,7 +6,8 @@ local particle = require("src.particle")
 local asteroid = require("src.asteroid")
 
 --globals
-screen_width, screen_height = 160, 144
+screen_width, screen_height = 128, 128
+text = {}
 
 function window_setup()
     --setup window
@@ -14,8 +15,8 @@ function window_setup()
         fullscreen = false,
         resizable = true,
         vsync = true,
-        minwidth = screen_width,
-        minheight = screen_height
+        minwidth = 512,
+        minheight = 512
     })
 
     -- Optional: nicer scaling for pixel art
@@ -66,7 +67,9 @@ function love.load()
 end
 
 function love.update(dt)
-    Player:update(dt)
+    if Player ~= nil then
+        Player:update(dt)
+    end
 
     --update bullets
     for i = #bullets, 1, -1 do
@@ -76,6 +79,12 @@ function love.update(dt)
         if b:is_offscreen() then
             table.remove(bullets, i)
         end
+    end
+    
+    --update asteroids
+    for i = #asteroids, 1, -1 do
+        local a = asteroids[i]
+        a:update(dt)
     end
 
     --update particles
@@ -88,10 +97,8 @@ function love.update(dt)
         end
     end
 
-    --update asteroids
-    for i = #asteroids, 1, -1 do
-        local a = asteroids[i]
-        a:update(dt)
+    while #text > 40 do
+        table.remove(text, 1)
     end
 end
 
@@ -113,6 +120,11 @@ function love.draw()
     love.graphics.translate(offset_x, offset_y)
 
     --now draw the world
+
+    for i = 1,#text do
+        love.graphics.setColor(255,255,255, 255 - (i-1) * 6)
+        love.graphics.print(text[#text - (i-1)], 10, i * 15)
+    end
 
     --draw particles
     for i = #particles, 1, -1 do

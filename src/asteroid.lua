@@ -20,11 +20,12 @@ function asteroid.new_asteroid(x, y, size)
         angle_increment = 100,
         friction = 0.99,
         accel_delta = 200,
-        sprite = nil
+        sprite = nil,
+        bbox = nil
     }
 
     function a:init()
-        a:get_sprite()
+        a:get_sprite_and_set_bbox()
         self.rotation_deg = math.random(359)
         self.direction_deg = math.random(359)
     end
@@ -43,9 +44,11 @@ function asteroid.new_asteroid(x, y, size)
         self.vx = self.vx * self.friction
         self.vy = self.vy * self.friction
 
-        --apply vector position to x, y
+        --move
         self.x = self.x + self.vx * dt
         self.y = self.y + self.vy * dt
+
+        self.bbox:moveTo(self.x, self.y)
 
         --screen wrapping
         utils.screen_wrap(self)
@@ -53,15 +56,21 @@ function asteroid.new_asteroid(x, y, size)
 
     function a:draw()
         utils.draw_sprite(self.sprite, self.x, self.y, math.rad(self.rotation_deg), 1, 1, true)
+        love.graphics.setColor(1.0, 0.0, 1.0, 0.5)
+        self.bbox:draw('fill')
+        love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
     end
 
-    function a:get_sprite()
+    function a:get_sprite_and_set_bbox()
         if (self.size == asteroid.sizes.LARGE) then
             self.sprite = asteroid_large
+            self.bbox = hc.circle(x, y, 16)
         elseif (self.size == asteroid.sizes.MEDIUM) then
             self.sprite = asteroid_medium
+            self.bbox = hc.circle(x, y, 8)
         else
             self.sprite = asteroid_small
+            self.bbox = hc.circle(x, y, 4)
         end
     end
 
