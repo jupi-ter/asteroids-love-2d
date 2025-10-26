@@ -1,6 +1,13 @@
 local utils = {}
 hc = require("HC")
 
+-- global enums
+utils.object_types = {
+    PLAYER = "player",
+    BULLET = "bullet",
+    ASTEROID = "asteroid"
+}
+
 utils.colors = {
     BLACK = {0.0, 0.0, 0.0},
     DARKBLUE = {0.114, 0.169, 0.325},
@@ -19,6 +26,7 @@ utils.colors = {
     PINK = {1.0, 0.467, 0.659},
     LIGHTPEACH = {1.0, 0.8, 0.667}
 }
+--
 
 function utils.draw_sprite(sprite, x, y, rotation, image_xscale, image_yscale, draw_from_origin)
     if sprite ~= nil then
@@ -54,9 +62,33 @@ function utils.screen_wrap(object)
     end
 end
 
-function utils.check_collisions(bbox)
-    for shape, delta in pairs(hc.collisions(bbox)) do
-        text[#text+1] = string.format("Colliding. Separating vector = (%s,%s)", delta.x, delta.y)
+function utils.check_all_collisions()
+    -- Check player vs asteroids
+    for shape, delta in pairs(hc.collisions(Player.bbox)) do
+        if shape.owner and shape.owner.type == utils.object_types.ASTEROID then
+            -- Handle player-asteroid collision
+            --Player:take_damage()
+        end
+    end
+   
+    -- Check bullets vs asteroids
+    for i = #bullets, 1, -1 do
+        if not bullets[i].flag_for_deletion then  -- Skip if already deleted
+            for shape, delta in pairs(hc.collisions(bullets[i].bbox)) do
+                if shape.owner and shape.owner.type == utils.object_types.ASTEROID then
+                    -- Destroy bullet
+                    bullets[i].flag_for_deletion = true
+                    if bullets[i].bbox then
+                        hc.remove(bullets[i].bbox)
+                        bullets[i].bbox = nil
+                    end
+                    
+                    -- Damage asteroid (it removes itself from HC)
+                    shape.owner:take_damage()
+                    break  -- Bullet can only hit once
+                end
+            end
+        end
     end
 end
 

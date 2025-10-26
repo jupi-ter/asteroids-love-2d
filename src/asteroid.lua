@@ -9,6 +9,7 @@ asteroid.sizes = {
 
 function asteroid.new_asteroid(x, y, size)
     local a = {
+        type = utils.object_types.ASTEROID,
         x = x,
         y = y,
         vx = 0,
@@ -20,8 +21,9 @@ function asteroid.new_asteroid(x, y, size)
         angle_increment = 100,
         friction = 0.99,
         accel_delta = 200,
-        sprite = nil,
-        bbox = nil
+        on = { destroy = nil }
+        --sprite = nil,
+        --bbox = nil
     }
 
     function a:init()
@@ -48,7 +50,9 @@ function asteroid.new_asteroid(x, y, size)
         self.x = self.x + self.vx * dt
         self.y = self.y + self.vy * dt
 
-        self.bbox:moveTo(self.x, self.y)
+        if self.bbox ~= nil then
+            self.bbox:moveTo(self.x, self.y)
+        end
 
         --screen wrapping
         utils.screen_wrap(self)
@@ -56,21 +60,44 @@ function asteroid.new_asteroid(x, y, size)
 
     function a:draw()
         utils.draw_sprite(self.sprite, self.x, self.y, math.rad(self.rotation_deg), 1, 1, true)
-        love.graphics.setColor(1.0, 0.0, 1.0, 0.5)
-        self.bbox:draw('fill')
-        love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+        if self.bbox ~= nil then
+            love.graphics.setColor(1.0, 0.0, 1.0, 0.5)
+            self.bbox:draw('fill')
+            love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+        end
     end
 
     function a:get_sprite_and_set_bbox()
         if (self.size == asteroid.sizes.LARGE) then
             self.sprite = asteroid_large
-            self.bbox = hc.circle(x, y, 16)
+            self.bbox = hc.circle(x, y, 6)
         elseif (self.size == asteroid.sizes.MEDIUM) then
             self.sprite = asteroid_medium
-            self.bbox = hc.circle(x, y, 8)
+            self.bbox = hc.circle(x, y, 4)
         else
             self.sprite = asteroid_small
-            self.bbox = hc.circle(x, y, 4)
+            self.bbox = hc.circle(x, y, 2)
+        end
+
+        self.bbox.owner = self
+    end
+
+    function a:take_damage()
+        if self.flag_for_deletion then
+            return
+        end
+        
+        self.flag_for_deletion = true
+        
+        --remove from collision system
+        if self.bbox then
+            hc.remove(self.bbox)
+            self.bbox = nil
+        end
+        
+        -- trigger destroy event
+        if self.on.destroy then
+            self.on.destroy(self)
         end
     end
 

@@ -10,7 +10,7 @@ function particle.new_particle(x, y, xscale, yscale, rotation_rad, color)
         rotation_rad = rotation_rad,
         flag_for_deletion = false,
         decrement_value = 6.0, -- 6/60 = 0.1
-        sprite = nil,
+        --sprite = nil,
         color = color
     }
 

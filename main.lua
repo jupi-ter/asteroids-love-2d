@@ -47,10 +47,28 @@ function love.load()
     bullets = {}
     particles = {}
     asteroids = {}
-    
-    local a = asteroid.new_asteroid(0, 0, asteroid.sizes.LARGE)
-    a:init()
-    table.insert(asteroids, a)
+
+    local function spawn_asteroid(x, y, size)
+        local a = asteroid.new_asteroid(x, y, size)
+        a:init()
+        
+        -- Register destroy callback
+        a.on.destroy = function(self)
+            -- Spawn smaller asteroids
+            if self.size == asteroid.sizes.LARGE then
+                spawn_asteroid(self.x + 10, self.y, asteroid.sizes.MEDIUM)
+                spawn_asteroid(self.x - 10, self.y, asteroid.sizes.MEDIUM)
+            elseif self.size == asteroid.sizes.MEDIUM then
+                spawn_asteroid(self.x + 5, self.y, asteroid.sizes.SMALL)
+                spawn_asteroid(self.x - 5, self.y, asteroid.sizes.SMALL)
+            end
+            -- Small asteroids don't spawn anything
+
+        end
+        table.insert(asteroids, a)
+    end
+
+    spawn_asteroid(0, 0, asteroid.sizes.LARGE)
 
     --callbacks (lambdas)
     Player.on.shoot = function(x, y, rot)
@@ -85,6 +103,10 @@ function love.update(dt)
     for i = #asteroids, 1, -1 do
         local a = asteroids[i]
         a:update(dt)
+
+        if a.flag_for_deletion then
+            table.remove(asteroids, i)
+        end
     end
 
     --update particles
@@ -97,9 +119,7 @@ function love.update(dt)
         end
     end
 
-    while #text > 40 do
-        table.remove(text, 1)
-    end
+    utils.check_all_collisions()
 end
 
 function love.draw()
