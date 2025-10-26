@@ -7,7 +7,7 @@ local asteroid = require("src.asteroid")
 
 --globals
 screen_width, screen_height = 128, 128
-text = {}
+score = 0
 
 function window_setup()
     --setup window
@@ -117,12 +117,12 @@ function love.draw()
     local offset_y = (win_h/scale - screen_height) / 2
     love.graphics.translate(offset_x, offset_y)
 
-    --now draw the world
+    --now draw the world :)
 
-    for i = 1,#text do
-        love.graphics.setColor(255,255,255, 255 - (i-1) * 6)
-        love.graphics.print(text[#text - (i-1)], 10, i * 15)
-    end
+    --print score
+    love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+    love.graphics.setNewFont(8)
+    love.graphics.print("SCORE: " .. score, 10, 10)
 
     --draw particles
     for i = #particles, 1, -1 do
@@ -147,14 +147,17 @@ function love.draw()
     love.graphics.pop()
 end
 
+--helper callback functions
 function spawn_asteroid(x, y, size)
     local a = asteroid.new_asteroid(x, y, size)
     a:init()
     
     --register destroy callback
     a.on.destroy = function(self)
+        --add points
+        score = score + self.points
+        
         --spawn explosion
-
         local deg_increments = 45
         for i = 1, 8, 1 do
             local deg_angle = ((i-1)*deg_increments)

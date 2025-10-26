@@ -20,13 +20,14 @@ function asteroid.new_asteroid(x, y, size)
         angle_increment = 100,
         friction = 0.99,
         accel_delta = 100, --speed
-        on = { destroy = nil }
+        on = { destroy = nil },
+        points = 0
         --sprite = nil,
         --bbox = nil
     }
 
     function a:init()
-        a:get_sprite_and_set_bbox()
+        a:setup()
         self.rotation_deg = math.random(359)
         self.direction_deg = math.random(359)
     end
@@ -66,14 +67,18 @@ function asteroid.new_asteroid(x, y, size)
         end
     end
 
-    function a:get_sprite_and_set_bbox()
+    function a:setup()
+       --setup sprite and bbox and points
         if (self.size == asteroid.sizes.LARGE) then
+            self.points = 30
             self.sprite = asteroid_large
             self.bbox = hc.circle(x, y, 6)
         elseif (self.size == asteroid.sizes.MEDIUM) then
+            self.points = 20
             self.sprite = asteroid_medium
             self.bbox = hc.circle(x, y, 4)
         else
+            self.points = 10
             self.sprite = asteroid_small
             self.bbox = hc.circle(x, y, 2)
         end
