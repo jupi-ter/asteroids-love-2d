@@ -48,26 +48,6 @@ function love.load()
     particles = {}
     asteroids = {}
 
-    local function spawn_asteroid(x, y, size)
-        local a = asteroid.new_asteroid(x, y, size)
-        a:init()
-        
-        -- Register destroy callback
-        a.on.destroy = function(self)
-            -- Spawn smaller asteroids
-            if self.size == asteroid.sizes.LARGE then
-                spawn_asteroid(self.x + 10, self.y, asteroid.sizes.MEDIUM)
-                spawn_asteroid(self.x - 10, self.y, asteroid.sizes.MEDIUM)
-            elseif self.size == asteroid.sizes.MEDIUM then
-                spawn_asteroid(self.x + 5, self.y, asteroid.sizes.SMALL)
-                spawn_asteroid(self.x - 5, self.y, asteroid.sizes.SMALL)
-            end
-            -- Small asteroids don't spawn anything
-
-        end
-        table.insert(asteroids, a)
-    end
-
     spawn_asteroid(0, 0, asteroid.sizes.LARGE)
 
     --callbacks (lambdas)
@@ -77,10 +57,8 @@ function love.load()
     end
 
     -- add particle spawner callback
-    Player.on.move = function(x, y, rot, xscale, yscale, color)
-        local p = particle.new_particle(x, y, xscale, yscale, rot, color)
-        p:init()
-        table.insert(particles, p)
+    Player.on.move = function(x, y, xscale, yscale, rot, color)
+        create_particle(x,y,xscale,yscale,rot,color,0)
     end
 end
 
@@ -167,4 +145,38 @@ function love.draw()
 
     --stop drawing
     love.graphics.pop()
+end
+
+function spawn_asteroid(x, y, size)
+    local a = asteroid.new_asteroid(x, y, size)
+    a:init()
+    
+    --register destroy callback
+    a.on.destroy = function(self)
+        --spawn explosion
+
+        local deg_increments = 45
+        for i = 1, 8, 1 do
+            local deg_angle = ((i-1)*deg_increments)
+            create_particle(self.x, self.y, 1.5, 1.5, math.rad(deg_angle + math.random(-3,3)), utils.colors.BROWN, 1)
+        end
+
+        --spawn smaller asteroids
+        if self.size == asteroid.sizes.LARGE then
+            spawn_asteroid(self.x + 10, self.y, asteroid.sizes.MEDIUM)
+            spawn_asteroid(self.x - 10, self.y, asteroid.sizes.MEDIUM)
+        elseif self.size == asteroid.sizes.MEDIUM then
+            spawn_asteroid(self.x + 5, self.y, asteroid.sizes.SMALL)
+            spawn_asteroid(self.x - 5, self.y, asteroid.sizes.SMALL)
+        end
+        --small asteroids don't spawn anything
+    end
+
+    table.insert(asteroids, a)
+end
+
+function create_particle(x, y, xscale, yscale, rot, color, force)
+    local p = particle.new_particle(x, y, xscale, yscale, rot, color, force)
+    p:init()
+    table.insert(particles, p)
 end

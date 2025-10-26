@@ -1,17 +1,21 @@
 local particle = {}
 local utils = require("src.utils")
 
-function particle.new_particle(x, y, xscale, yscale, rotation_rad, color)
+--x, y, xscale, yscale, rotation_rad, color
+function particle.new_particle(x, y, xscale, yscale, rotation_rad, color, force)
     local part = {
         x = x,
         y = y,
         xscale = xscale,
         yscale = yscale,
         rotation_rad = rotation_rad,
-        flag_for_deletion = false,
         decrement_value = 6.0, -- 6/60 = 0.1
+        color = color,
+        force = force,
+        flag_for_deletion = false,
+        vx = 0,
+        vy = 0
         --sprite = nil,
-        color = color
     }
 
     function part:init()
@@ -19,6 +23,14 @@ function particle.new_particle(x, y, xscale, yscale, rotation_rad, color)
     end
 
     function part:update(dt)
+        if self.force > 0 then
+            self.vx = self.vx + math.cos(self.rotation_rad) * self.force * dt
+            self.vy = self.vy + math.sin(self.rotation_rad) * self.force * dt
+
+            self.x = self.x + self.vx
+            self.y = self.y + self.vy
+        end
+
         if (self.xscale > 0) then
             self.xscale = self.xscale - (self.decrement_value * dt)
             self.yscale = self.yscale - (self.decrement_value * dt)

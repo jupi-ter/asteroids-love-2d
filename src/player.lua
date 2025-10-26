@@ -81,16 +81,15 @@
                     local possible_colors = {
                         utils.colors.YELLOW,
                         utils.colors.RED,
-                        utils.colors.ORANGE,
-                        utils.colors.WHITE
+                        utils.colors.ORANGE
                     }
 
                     self.on.move(
-                        self.x + offset_x, 
-                        self.y + offset_y, 
-                        rotation_rad,  -- keep particle aligned with ship
-                        1.0, 
+                        self.x + offset_x,
+                        self.y + offset_y,
                         1.0,
+                        1.0,
+                        rotation_rad,  -- keep particle aligned with ship
                         possible_colors[math.random(1, #possible_colors)]
                     )
                 end

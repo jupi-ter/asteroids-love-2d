@@ -15,12 +15,11 @@ function asteroid.new_asteroid(x, y, size)
         vx = 0,
         vy = 0,
         direction_deg = 0,
-        speed = 5,
         size = size,
         rotation_deg = 0,
         angle_increment = 100,
         friction = 0.99,
-        accel_delta = 200,
+        accel_delta = 100, --speed
         on = { destroy = nil }
         --sprite = nil,
         --bbox = nil
