@@ -64,16 +64,18 @@ end
 
 function utils.check_all_collisions()
     -- Check player vs asteroids
-    for shape, delta in pairs(hc.collisions(Player.bbox)) do
-        if shape.owner and shape.owner.type == utils.object_types.ASTEROID then
-            -- Handle player-asteroid collision
-            --Player:take_damage()
+    if Player:is_alive() and not Player.invulnerable then
+        for shape, delta in pairs(hc.collisions(Player.bbox)) do
+            if shape.owner and shape.owner.type == utils.object_types.ASTEROID then
+                Player:die()
+                break
+            end
         end
     end
    
     -- Check bullets vs asteroids
     for i = #bullets, 1, -1 do
-        if not bullets[i].flag_for_deletion then  -- Skip if already deleted
+        if not bullets[i].flag_for_deletion and game_state ~= game_states.GAME_OVER then  -- Skip if already deleted
             for shape, delta in pairs(hc.collisions(bullets[i].bbox)) do
                 if shape.owner and shape.owner.type == utils.object_types.ASTEROID then
                     -- Destroy bullet
