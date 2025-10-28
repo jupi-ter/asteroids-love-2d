@@ -362,7 +362,7 @@ end
 
 function create_explosion(x,y)
     local scale = (2 + utils.random_float(5.0))
-    for i = 1, 16 do
+    for i = 1, 16, 1 do
         create_particle(x, y, scale, true)
     end
 end

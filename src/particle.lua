@@ -21,15 +21,17 @@ function particle.new_particle(x, y, scale, move)
         speed_factor = 60,
         speed_x = 0,
         speed_y = 0,
-        color = 0
+        color = utils.colors.WHITE
         --sprite = nil,
     }
     
     function part:init()
         self.sprite = particle_sprite
         if self.move then
-            self.speed_x = (1 - utils.random_float(2.0)) * self.speed_factor
-            self.speed_y = (1 - utils.random_float(2.0)) * self.speed_factor
+            local angle = self.rotation_rad
+            local speed = utils.random_float(1.0) * self.speed_factor
+            self.speed_x = math.cos(angle) * speed
+            self.speed_y = math.sin(angle) * speed
         end
     end
 
