@@ -63,7 +63,7 @@ function utils.screen_wrap(object)
 end
 
 function utils.check_all_collisions()
-    -- Check player vs asteroids
+    -- check player vs asteroids
     if Player:is_alive() and not Player.invulnerable then
         for shape, delta in pairs(hc.collisions(Player.bbox)) do
             if shape.owner and shape.owner.type == utils.object_types.ASTEROID then
@@ -73,12 +73,12 @@ function utils.check_all_collisions()
         end
     end
    
-    -- Check bullets vs asteroids
+    -- check bullets vs asteroids
     for i = #bullets, 1, -1 do
-        if not bullets[i].flag_for_deletion and game_state ~= game_states.GAME_OVER then  -- Skip if already deleted
+        if not bullets[i].flag_for_deletion and game_state ~= game_states.GAME_OVER then  -- skip if already deleted
             for shape, delta in pairs(hc.collisions(bullets[i].bbox)) do
                 if shape.owner and shape.owner.type == utils.object_types.ASTEROID then
-                    -- Destroy bullet
+                    -- destroy bullet
                     bullets[i].flag_for_deletion = true
                     if bullets[i].bbox then
                         hc.remove(bullets[i].bbox)

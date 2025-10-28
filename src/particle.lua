@@ -1,7 +1,6 @@
 local particle = {}
 local utils = require("src.utils")
 
---x, y, xscale, yscale, rotation_rad, move
 function particle.new_particle(x, y, scale, move)
     local part = {
         x = x,
