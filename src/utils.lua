@@ -80,12 +80,14 @@ function utils.check_all_collisions()
                 if shape.owner and shape.owner.type == utils.object_types.ASTEROID then
                     -- destroy bullet
                     bullets[i].flag_for_deletion = true
+                    
+                    --remove from collision system
                     if bullets[i].bbox then
                         hc.remove(bullets[i].bbox)
                         bullets[i].bbox = nil
                     end
                     
-                    -- Damage asteroid (it removes itself from HC)
+                    -- damage asteroid
                     shape.owner:take_damage()
                     break  -- Bullet can only hit once
                 end

@@ -125,6 +125,8 @@ function load_sprites()
 end
 
 function love.load()
+    font = love.graphics.newFont("assets/font/monogram.ttf", 16)
+    font:setFilter("nearest", "nearest")
     window_setup()
     load_sprites()
     init_game()
@@ -224,6 +226,7 @@ function spawn_new_wave()
 end
 
 function love.draw()
+    love.graphics.setFont(font)
     local win_w, win_h = love.graphics.getDimensions()
     local scale_x = win_w / screen_width
     local scale_y = win_h / screen_height
@@ -256,7 +259,6 @@ end
 function draw_playing_state()
     -- print score and lives
     love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
-    love.graphics.setNewFont(8)
     love.graphics.print("LIVES: " .. math.max(0, lives), 10, 10)
     love.graphics.print("SCORE: " .. score, 10, 20)
 
@@ -300,13 +302,11 @@ function draw_game_over_state()
     
     -- draw game over screen
     love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
-    love.graphics.setNewFont(12)
-    
+
     local game_over_text = "GAME OVER"
     local text_width = love.graphics.getFont():getWidth(game_over_text)
     love.graphics.print(game_over_text, (screen_width - text_width) / 2, screen_height / 2 - 20)
     
-    love.graphics.setNewFont(8)
     local final_score_text = "FINAL SCORE: " .. score
     local score_width = love.graphics.getFont():getWidth(final_score_text)
     love.graphics.print(final_score_text, (screen_width - score_width) / 2, screen_height / 2)
