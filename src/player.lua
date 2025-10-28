@@ -112,20 +112,11 @@ function player.new_player(x, y)
                 
                 local offset_x = math.cos(perpendicular_angle) * noise_amount
                 local offset_y = math.sin(perpendicular_angle) * noise_amount
-                
-                local possible_colors = {
-                    utils.colors.YELLOW,
-                    utils.colors.RED,
-                    utils.colors.ORANGE
-                }
 
                 self.on.move(
                     self.x + offset_x,
                     self.y + offset_y,
-                    1.0,
-                    1.0,
-                    rotation_rad,  -- keep particle aligned with ship
-                    possible_colors[math.random(1, #possible_colors)]
+                    3.0
                 )
             end
         end

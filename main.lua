@@ -48,18 +48,15 @@ function init_game()
     end
 
     -- add particle spawner callback
-    Player.on.move = function(x, y, xscale, yscale, rot, color)
-        create_particle(x,y,xscale,yscale,rot,color,0)
+    Player.on.move = function(x, y, scale)
+        create_particle(x, y, scale, false)
     end
 
     --explosion on death
     Player.on.death = function(self)
         lives = lives - 1
-        local deg_increments = 22.5
-        for i = 1, 16 do
-            local deg_angle = ((i-1)*deg_increments)
-            create_particle(self.x, self.y, 2, 2, math.rad(deg_angle), utils.colors.DARKGREY, 2)
-        end
+
+        create_explosion(self.x, self.y)
 
         if (lives <= 0) then
             self.state = player.states.DEAD
@@ -177,7 +174,7 @@ function love.update(dt)
 
         utils.check_all_collisions()
         
-        -- Check if all asteroids are destroyed (optional: spawn new wave)
+        -- check if all asteroids are destroyed
         if #asteroids == 0 and Player:is_alive() then
             spawn_new_wave()
         end
@@ -188,7 +185,7 @@ function love.update(dt)
             init_game()
         end
 
-        -- Still update particles for visual effects
+        -- still update particles for visual effects
         for i = #particles, 1, -1 do
             local p = particles[i]
             p:update(dt)
@@ -341,12 +338,7 @@ function spawn_asteroid(x, y, size)
         --add points
         score = score + self.points
         
-        --spawn explosion
-        local deg_increments = 22.5
-        for i = 1, 16, 1 do
-            local deg_angle = ((i-1)*deg_increments)
-            create_particle(self.x, self.y, 1.5, 1.5, math.rad(deg_angle + math.random(-3,3)), utils.colors.BROWN, 2)
-        end
+        create_explosion(self.x, self.y)
 
         --spawn smaller asteroids
         if self.size == asteroid.sizes.LARGE then
@@ -362,8 +354,15 @@ function spawn_asteroid(x, y, size)
     table.insert(asteroids, a)
 end
 
-function create_particle(x, y, xscale, yscale, rot, color, force)
-    local p = particle.new_particle(x, y, xscale, yscale, rot, color, force)
+function create_particle(x, y, scale, move)
+    local p = particle.new_particle(x, y, scale, move)
     p:init()
     table.insert(particles, p)
+end
+
+function create_explosion(x,y)
+    local scale = (2 + utils.random_float(5.0))
+    for i = 1, 16 do
+        create_particle(x, y, scale, true)
+    end
 end
