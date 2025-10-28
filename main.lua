@@ -44,7 +44,7 @@ function init_game()
     spawn_asteroid(screen_width - 20, 20, asteroid.sizes.LARGE)
     spawn_asteroid(screen_width/2, screen_height - 20, asteroid.sizes.LARGE)
 
-    --callbacks (lambdas)
+    -- callbacks (lambdas)
     Player.on.shoot = function(x, y, rot)
         local b = bullet.new_bullet(x, y, rot)
         table.insert(bullets, b)
@@ -55,7 +55,7 @@ function init_game()
         create_particle(x, y, scale, false)
     end
 
-    --explosion on death
+    -- explosion on death
     Player.on.death = function(self)
         lives = lives - 1
 
@@ -67,25 +67,23 @@ function init_game()
             --game over
             game_state = game_states.GAME_OVER
 
-            -- Update high score
+            -- update high score
             if score > high_score then
                 high_score = score
             end
             
-            -- Clear all game objects' collision boxes
+            -- clear all game objects' collision boxes
             clear_all_collision_boxes()
         end
     end
 end
 
 function clear_all_collision_boxes()
-    -- Remove player bbox
     if Player and Player.bbox then
         hc.remove(Player.bbox)
         Player.bbox = nil
     end
     
-    -- Remove all bullet bboxes
     for i = #bullets, 1, -1 do
         if bullets[i].bbox then
             hc.remove(bullets[i].bbox)
@@ -93,7 +91,6 @@ function clear_all_collision_boxes()
         end
     end
     
-    -- Remove all asteroid bboxes
     for i = #asteroids, 1, -1 do
         if asteroids[i].bbox then
             hc.remove(asteroids[i].bbox)
@@ -111,11 +108,10 @@ function window_setup()
         minwidth = 512,
         minheight = 512
     })
-
-    -- Optional: nicer scaling for pixel art
+    
+    --scaling
     love.graphics.setDefaultFilter("nearest", "nearest")
 
-    -- Background color (RGB 0.0 - 1.0)
     love.graphics.setBackgroundColor(0.0, 0.0, 0.0)
 end
 
@@ -129,6 +125,8 @@ function load_sprites()
 end
 
 function love.load()
+    font = love.graphics.newFont("assets/font/monogram.ttf", 16)
+    font:setFilter("nearest", "nearest")
     window_setup()
     load_sprites()
     init_game()
@@ -148,7 +146,7 @@ function love.update(dt)
             b:update(dt)
 
             if b:is_offscreen() then
-                -- Remove from collision system
+                -- remove from collision system
                 if b.bbox then
                     hc.remove(b.bbox)
                     b.bbox = nil
@@ -157,7 +155,7 @@ function love.update(dt)
             end
         end
         
-        --update asteroids
+        -- update asteroids
         for i = #asteroids, 1, -1 do
             local a = asteroids[i]
             a:update(dt)
@@ -167,7 +165,7 @@ function love.update(dt)
             end
         end
 
-        --update particles
+        -- update particles
         for i = #particles, 1, -1 do
             local p = particles[i]
             p:update(dt)
@@ -203,12 +201,11 @@ function love.update(dt)
 end
 
 function spawn_new_wave()
-    -- Spawn more asteroids for next wave
-    local num_asteroids = math.min(5, 3 + math.floor(score / 500))  -- Scale with score
+    local num_asteroids = math.min(5, 3 + math.floor(score / 500))
     
+    -- spawn at edges of screen
     for i = 1, num_asteroids do
         local x, y
-        -- Spawn at edges of screen, away from player
         local side = math.random(1, 4)
         if side == 1 then -- top
             x = math.random(0, screen_width)
@@ -229,6 +226,7 @@ function spawn_new_wave()
 end
 
 function love.draw()
+    love.graphics.setFont(font)
     local win_w, win_h = love.graphics.getDimensions()
     local scale_x = win_w / screen_width
     local scale_y = win_h / screen_height
@@ -259,9 +257,8 @@ function love.draw()
 end
 
 function draw_playing_state()
-    --print score and lives
+    -- print score and lives
     love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
-    love.graphics.setNewFont(8)
     love.graphics.print("LIVES: " .. math.max(0, lives), 10, 10)
     love.graphics.print("SCORE: " .. score, 10, 20)
 
@@ -269,7 +266,7 @@ function draw_playing_state()
         love.graphics.print("HIGH: " .. high_score, 10, 30)
     end
 
-    --draw particles
+    -- draw particles
     for i = #particles, 1, -1 do
         local p = particles[i]
         p:draw()
@@ -279,7 +276,7 @@ function draw_playing_state()
         Player:draw()
     end
 
-    --draw bullets
+    -- draw bullets
     for i = #bullets, 1, -1 do
         local b = bullets[i]
         b:draw()
@@ -292,27 +289,24 @@ function draw_playing_state()
 end
 
 function draw_game_over_state()
-    -- Still draw particles for visual effect
     for i = #particles, 1, -1 do
         local p = particles[i]
         p:draw()
     end
     
-    -- Draw remaining asteroids (frozen)
+    -- draw remaining asteroids
     for i = #asteroids, 1, -1 do
         local a = asteroids[i]
         a:draw()
     end
     
-    -- Draw game over screen
+    -- draw game over screen
     love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
-    love.graphics.setNewFont(12)
-    
+
     local game_over_text = "GAME OVER"
     local text_width = love.graphics.getFont():getWidth(game_over_text)
     love.graphics.print(game_over_text, (screen_width - text_width) / 2, screen_height / 2 - 20)
     
-    love.graphics.setNewFont(8)
     local final_score_text = "FINAL SCORE: " .. score
     local score_width = love.graphics.getFont():getWidth(final_score_text)
     love.graphics.print(final_score_text, (screen_width - score_width) / 2, screen_height / 2)
@@ -335,14 +329,11 @@ function draw_game_over_state()
 end
 
 --helper callback functions
---helper callback functions
 function spawn_asteroid(x, y, size, parent_vx, parent_vy)
     local a = asteroid.new_asteroid(x, y, size, parent_vx, parent_vy)
     a:init()
     
-    --register destroy callback
     a.on.destroy = function(self)
-        --add points
         score = score + self.points
         
         create_explosion(self.x, self.y)

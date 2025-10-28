@@ -55,7 +55,7 @@ function asteroid.new_asteroid(x, y, size, inherited_vx, inherited_vy)
     end
 
     function a:get_speed_for_size()
-        -- Larger asteroids move slower
+        -- bigger asteroids move slower
         if self.size == asteroid.sizes.LARGE then
             return 10
         elseif self.size == asteroid.sizes.MEDIUM then
@@ -72,15 +72,15 @@ function asteroid.new_asteroid(x, y, size, inherited_vx, inherited_vy)
         local dx = center_x - self.x
         local dy = center_y - self.y
         
-        -- Calculate angle in degrees
-        return math.deg(math.atan2(dy, dx))
+        -- calculate angle in degrees
+        return math.deg(math.atan(dy, dx))
     end
 
     function a:update(dt)
-        --rotate
+        -- rotate
         self.rotation_deg = self.rotation_deg + (self.angle_increment * dt)
 
-        -- Direct velocity movement (no acceleration)
+        -- direct velocity movement
         self.x = self.x + self.vx * dt
         self.y = self.y + self.vy * dt
 
@@ -102,7 +102,7 @@ function asteroid.new_asteroid(x, y, size, inherited_vx, inherited_vy)
     end
 
     function a:setup()
-       --setup sprite and bbox and points
+       -- setup sprite and bbox and points
         if (self.size == asteroid.sizes.LARGE) then
             self.points = 30
             self.sprite = asteroid_large
@@ -127,7 +127,7 @@ function asteroid.new_asteroid(x, y, size, inherited_vx, inherited_vy)
         
         self.flag_for_deletion = true
         
-        --remove from collision system
+        -- remove from collision system
         if self.bbox then
             hc.remove(self.bbox)
             self.bbox = nil

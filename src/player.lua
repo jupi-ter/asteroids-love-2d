@@ -66,10 +66,10 @@ function player.new_player(x, y)
             if self.respawn_timer <= 0 then
                 self:respawn()
             end
-            return  -- Don't process other updates while dead
+            return  -- don't process other updates while dead
         end
         
-        -- Handle invulnerability
+        -- handle invulnerability
         if self.invulnerable then
             self.invulnerable_timer = self.invulnerable_timer - 1
             if self.invulnerable_timer <= 0 then
@@ -152,7 +152,7 @@ function player.new_player(x, y)
         end
     
         -- blink while invulnerable (draw every other 4 frames)
-        if self.invulnerable and math.floor(self.invulnerable_timer / 4) % 2 == 0 then
+        if self.invulnerable and self.invulnerable_timer % 4 == 0 then
             return
         end
 
