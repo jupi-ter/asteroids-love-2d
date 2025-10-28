@@ -4,7 +4,7 @@ local player = require("src.player")
 local bullet = require("src.bullet")
 local particle = require("src.particle")
 local asteroid = require("src.asteroid")
-
+local starfield = require("src.starfield")
 
 --globals
 screen_width, screen_height = 128, 128
@@ -16,6 +16,7 @@ game_states = {
     GAME_OVER = "game over"
 }
 game_state = game_states.PLAYING
+debug_draw = false
 
 function init_game()
     -- reset globals
@@ -34,6 +35,8 @@ function init_game()
     bullets = {}
     particles = {}
     asteroids = {}
+
+    starfield.init() --init stars
 
     -- only for test
     -- spawn initial asteroids
@@ -132,6 +135,8 @@ function love.load()
 end
 
 function love.update(dt)
+    starfield.update(dt) --always update stars
+
     if game_state == game_states.PLAYING then
         if Player ~= nil then
             Player:update(dt)
@@ -241,6 +246,7 @@ function love.draw()
     love.graphics.translate(offset_x, offset_y)
 
     --now draw the world :)
+    starfield.draw() --always draw stars
 
     if game_state == game_states.PLAYING then
         draw_playing_state()
@@ -329,8 +335,9 @@ function draw_game_over_state()
 end
 
 --helper callback functions
-function spawn_asteroid(x, y, size)
-    local a = asteroid.new_asteroid(x, y, size)
+--helper callback functions
+function spawn_asteroid(x, y, size, parent_vx, parent_vy)
+    local a = asteroid.new_asteroid(x, y, size, parent_vx, parent_vy)
     a:init()
     
     --register destroy callback
@@ -340,13 +347,13 @@ function spawn_asteroid(x, y, size)
         
         create_explosion(self.x, self.y)
 
-        --spawn smaller asteroids
+        --spawn smaller asteroids, passing parent velocity
         if self.size == asteroid.sizes.LARGE then
-            spawn_asteroid(self.x + 10, self.y, asteroid.sizes.MEDIUM)
-            spawn_asteroid(self.x - 10, self.y, asteroid.sizes.MEDIUM)
+            spawn_asteroid(self.x + 10, self.y, asteroid.sizes.MEDIUM, self.vx, self.vy)
+            spawn_asteroid(self.x - 10, self.y, asteroid.sizes.MEDIUM, self.vx, self.vy)
         elseif self.size == asteroid.sizes.MEDIUM then
-            spawn_asteroid(self.x + 5, self.y, asteroid.sizes.SMALL)
-            spawn_asteroid(self.x - 5, self.y, asteroid.sizes.SMALL)
+            spawn_asteroid(self.x + 5, self.y, asteroid.sizes.SMALL, self.vx, self.vy)
+            spawn_asteroid(self.x - 5, self.y, asteroid.sizes.SMALL, self.vx, self.vy)
         end
         --small asteroids don't spawn anything
     end
@@ -361,7 +368,7 @@ function create_particle(x, y, scale, move)
 end
 
 function create_explosion(x,y)
-    local scale = (2 + utils.random_float(5.0))
+    local scale = (2.5 + math.random())
     for i = 1, 16, 1 do
         create_particle(x, y, scale, true)
     end

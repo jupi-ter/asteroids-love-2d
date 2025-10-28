@@ -47,7 +47,7 @@ function bullet.new_bullet(x, y, rotation_rad)
 	function bul:draw()
 		utils.draw_sprite(self.sprite, self.x, self.y, rotation_rad, 1, 1, true)
         --debug draw
-        if self.bbox ~= nil then
+        if self.bbox ~= nil and debug_draw then
             love.graphics.setColor(1.0, 0.0, 1.0, 0.5)
             self.bbox:draw('fill')
             love.graphics.setColor(1.0, 1.0, 1.0, 1.0)

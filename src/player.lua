@@ -157,9 +157,11 @@ function player.new_player(x, y)
         end
 
         utils.draw_sprite(self.sprite, self.x, self.y, math.rad(self.rotation_deg), 1, 1, true)
-        love.graphics.setColor(1.0, 0.0, 1.0, 0.5)
-        self.bbox:draw('fill')
-        love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+        if self.bbox ~= nil and debug_draw then
+            love.graphics.setColor(1.0, 0.0, 1.0, 0.5)
+            self.bbox:draw('fill')
+            love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+        end
     end
 
     function p:die()

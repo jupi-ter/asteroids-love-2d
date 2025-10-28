@@ -94,10 +94,4 @@ function utils.check_all_collisions()
     end
 end
 
-function utils.random_float(value)
-    local lo = 0.1
-    local hi = 0.9
-    return math.random() * (hi - lo) + lo
-end
-
 return utils
