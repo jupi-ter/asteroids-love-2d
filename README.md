@@ -14,4 +14,4 @@ SETUP
       ]
   }
 ```
-- if the love2d support extension has the correct love2d path, alt+l should execute main.lua from our working directory.
+- if the love2d support extension has the correct love2d path, set RunOnSave to true, save, then run.
