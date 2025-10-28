@@ -73,7 +73,7 @@ function asteroid.new_asteroid(x, y, size, inherited_vx, inherited_vy)
         local dy = center_y - self.y
         
         -- calculate angle in degrees
-        return math.deg(math.atan2(dy, dx))
+        return math.deg(math.atan(dy, dx))
     end
 
     function a:update(dt)
