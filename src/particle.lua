@@ -27,7 +27,7 @@ function particle.new_particle(x, y, scale, move)
         self.sprite = particle_sprite
         if self.move then
             local angle = self.rotation_rad
-            local speed = 1 - love.math.random(2.0)
+            local speed = math.random()
             self.speed_x = math.cos(angle) * speed
             self.speed_y = math.sin(angle) * speed
         end
@@ -39,8 +39,8 @@ function particle.new_particle(x, y, scale, move)
         end
 
         if self.move then
-            self.x = self.x + (self.speed_x)
-            self.y = self.y + (self.speed_y)
+            self.x = self.x + self.speed_x
+            self.y = self.y + self.speed_y
         end
 
         if (self.scale > 0) then

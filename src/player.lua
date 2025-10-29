@@ -18,7 +18,7 @@ function player.new_player(x, y)
         accel_delta = 0.1,
         friction = 0.98,
         --sprite = nil,
-        angle_increment = 5,
+        angle_increment = 3,
         shooting_counter = 0,
         rotation_deg = 0,
         shooting_cooldown = 15,
