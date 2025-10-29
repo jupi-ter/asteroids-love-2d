@@ -8,7 +8,7 @@ local star_colors = {
     utils.colors.WHITE  
 }
 
-local warp_factor = 120
+local warp_factor = 2
 local stars = {}
 
 function starfield.init()
@@ -29,11 +29,11 @@ function starfield.init()
     end
 end
 
-function starfield.update(dt)
+function starfield.update()
     -- move stars horizontally, speed based on depth
     for i = #stars, 1, -1 do
         local star = stars[i]
-        star.x = star.x + (star.z * warp_factor * dt) / 10
+        star.x = star.x + (star.z * warp_factor) / 10
         
         -- wrap star around screen
         if star.x > screen_width then

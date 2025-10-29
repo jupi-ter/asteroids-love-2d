@@ -7,7 +7,7 @@ function bullet.new_bullet(x, y, rotation_rad)
         type = utils.object_types.BULLET,
         x = x,
         y = y,
-        spd = 480,
+        spd = 8,
         vx = 0,
         vy = 0,
         --sprite = nil
@@ -33,11 +33,11 @@ function bullet.new_bullet(x, y, rotation_rad)
         self.run_once = true
     end
 
-    function bul:update(dt)
+    function bul:update()
         self:init()
         -- move at constant velocity
-        self.x = self.x + self.vx * dt
-        self.y = self.y + self.vy * dt
+        self.x = self.x + self.vx
+        self.y = self.y + self.vy
 
         if self.bbox ~= nil then
             self.bbox:moveTo(self.x, self.y)

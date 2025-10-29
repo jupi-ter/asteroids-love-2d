@@ -6,8 +6,8 @@ function particle.new_particle(x, y, scale, move)
         x = x,
         y = y,
         scale = scale,
-        rotation_rad = math.rad(math.random(359)),
-        decrement_value = 6.0, -- 6/60 ~ .1
+        rotation_rad = math.rad(love.math.random(359)),
+        decrement_value = 0.1,
         possible_colors = { --backwards because we're decreasing lifetime
             utils.colors.DARKGREY,
             utils.colors.ORANGE,
@@ -17,7 +17,6 @@ function particle.new_particle(x, y, scale, move)
         move = move,
         lifetime = 5,
         flag_for_deletion = false,
-        speed_factor = 60,
         speed_x = 0,
         speed_y = 0,
         color = utils.colors.WHITE
@@ -28,24 +27,24 @@ function particle.new_particle(x, y, scale, move)
         self.sprite = particle_sprite
         if self.move then
             local angle = self.rotation_rad
-            local speed = math.random() * self.speed_factor
+            local speed = 1 - love.math.random(2.0)
             self.speed_x = math.cos(angle) * speed
             self.speed_y = math.sin(angle) * speed
         end
     end
 
-    function part:update(dt)
+    function part:update()
         if self.flag_for_deletion then
             return
         end
 
         if self.move then
-            self.x = self.x + (self.speed_x * dt)
-            self.y = self.y + (self.speed_y * dt)
+            self.x = self.x + (self.speed_x)
+            self.y = self.y + (self.speed_y)
         end
 
         if (self.scale > 0) then
-            self.scale = self.scale - (self.decrement_value * dt)
+            self.scale = self.scale - self.decrement_value
         end
 
         local idx = math.floor(self.lifetime)
@@ -53,7 +52,7 @@ function particle.new_particle(x, y, scale, move)
         self.color = self.possible_colors[idx]
 
         if (self.lifetime > 0) then
-            self.lifetime = self.lifetime - (self.decrement_value * dt)
+            self.lifetime = self.lifetime - self.decrement_value
         else
             if (not self.flag_for_deletion) then
                 self.flag_for_deletion = true
