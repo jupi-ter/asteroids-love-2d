@@ -18,7 +18,7 @@ function asteroid.new_asteroid(x, y, size, inherited_vx, inherited_vy)
         size = size,
         rotation_deg = 0,
         angle_increment = 3,
-        friction = 0.99,
+        friction = 0.98,
         on = { destroy = nil },
         points = 0
         --sprite = nil,
@@ -57,11 +57,11 @@ function asteroid.new_asteroid(x, y, size, inherited_vx, inherited_vy)
     function a:get_speed_for_size()
         -- bigger asteroids move slower
         if self.size == asteroid.sizes.LARGE then
-            return 0.025
-        elseif self.size == asteroid.sizes.MEDIUM then
-            return 0.05
-        else
             return 0.1
+        elseif self.size == asteroid.sizes.MEDIUM then
+            return 0.25
+        else
+            return 0.5
         end
     end
 

@@ -324,15 +324,6 @@ function love.draw()
 end
 
 function draw_playing_state()
-    -- print score and lives
-    love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
-    love.graphics.print("LIVES: " .. math.max(0, lives), 10, 10)
-    love.graphics.print("SCORE: " .. score, 10, 20)
-
-    if high_score > 0 then
-        love.graphics.print("HIGH: " .. high_score, 10, 30)
-    end
-
     -- draw particles
     for i = #particles, 1, -1 do
         local p = particles[i]
@@ -353,6 +344,8 @@ function draw_playing_state()
         local a = asteroids[i]
         a:draw()
     end
+
+    draw_player_data()
 end
 
 function draw_game_over_state()
@@ -393,6 +386,16 @@ function draw_game_over_state()
     local restart_text = "PRESS R TO RESTART"
     local restart_width = love.graphics.getFont():getWidth(restart_text)
     love.graphics.print(restart_text, (screen_width - restart_width) / 2, screen_height / 2 + 30)
+end
+
+function draw_player_data()
+    love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+    love.graphics.print("LIVES: " .. math.max(0, lives), 10, 10)
+    love.graphics.print("SCORE: " .. score, 10, 20)
+
+    if high_score > 0 then
+        love.graphics.print("HIGH: " .. high_score, 10, 30)
+    end
 end
 
 --helper callback functions
