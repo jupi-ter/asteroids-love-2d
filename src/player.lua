@@ -15,20 +15,19 @@ function player.new_player(x, y)
         vx = 0,
         vy = 0,
         accel = 0,
-        accel_delta = 300,
-        friction = 0.99,
+        accel_delta = 0.05,
+        friction = 0.98,
         --sprite = nil,
-        angle_increment = 300, -- 5px
+        angle_increment = 5,
         shooting_counter = 0,
         rotation_deg = 0,
-        shooting_cooldown = 60,
+        shooting_cooldown = 15,
         on = { shoot = nil, move = nil, death = nil }, -- events
         -- initializing a value as nil doesn't actually initialize it,
         -- so this table is actually empty. however, we still declare these values here
         -- for reference, so we know which events exist in the game.
         -- we do this all across the project so, while they're being initialized later, we
         -- know they exist in the context by simply checking the table definition.
-        particle_frame = 0,
         bbox = hc.rectangle(x, y, 6, 6),
         --state
         state = player.states.ALIVE,
@@ -41,22 +40,12 @@ function player.new_player(x, y)
         spawn_y = y
     }
 
-    function p:decrement_shoot_cooldown()
-    -- decrement shooting counter
-        if self.shooting_counter > 0 then
-            self.shooting_counter = self.shooting_counter - 1
-            if self.shooting_counter < 0 then
-                self.shooting_counter = 0
-            end
-        end
-    end
-
     function p:init()
         self.sprite = player_center_sprite
         self.bbox.owner = self
     end
 
-    function p:update(dt)
+    function p:update()
         if self.state == player.states.DEAD then
             return
         end
@@ -77,7 +66,13 @@ function player.new_player(x, y)
             end
         end
 
-        p:decrement_shoot_cooldown()
+        -- decrement shooting counter
+        if self.shooting_counter > 0 then
+            self.shooting_counter = self.shooting_counter - 1
+            if self.shooting_counter < 0 then
+                self.shooting_counter = 0
+            end
+        end
 
         local move_left = love.keyboard.isDown("left")
         local move_right = love.keyboard.isDown("right")
@@ -85,11 +80,11 @@ function player.new_player(x, y)
 
         -- rotate
         if move_left then
-            self.rotation_deg = self.rotation_deg - (self.angle_increment * dt)
+            self.rotation_deg = self.rotation_deg - self.angle_increment
         end
 
         if move_right then
-            self.rotation_deg = self.rotation_deg + (self.angle_increment * dt)
+            self.rotation_deg = self.rotation_deg + self.angle_increment
         end
 
         -- rotate collision box
@@ -97,17 +92,12 @@ function player.new_player(x, y)
 
         if move_up then
             local rotation_rad = math.rad(self.rotation_deg)
-            self.vx = self.vx + math.cos(rotation_rad) * self.accel_delta * dt
-            self.vy = self.vy + math.sin(rotation_rad) * self.accel_delta * dt
+            self.vx = self.vx + math.cos(rotation_rad) * self.accel_delta
+            self.vy = self.vy + math.sin(rotation_rad) * self.accel_delta
 
-            self.particle_frame = self.particle_frame + 1
-
-            --spawn a particle every 8 frames
-            if self.on.move and self.particle_frame % 8 == 0 then
-                self.particle_frame = 0
-
+            if self.on.move then
                 -- Add perpendicular offset
-                local noise_amount = math.random(-2, 2)
+                local noise_amount = love.math.random(-2, 2)
                 local perpendicular_angle = rotation_rad + math.pi/2  -- 90 degrees
                 
                 local offset_x = math.cos(perpendicular_angle) * noise_amount
@@ -126,8 +116,8 @@ function player.new_player(x, y)
         self.vy = self.vy * self.friction
 
         -- move
-        self.x = self.x + self.vx * dt
-        self.y = self.y + self.vy * dt
+        self.x = self.x + self.vx
+        self.y = self.y + self.vy
 
         --move collision box
         self.bbox:moveTo(self.x, self.y)

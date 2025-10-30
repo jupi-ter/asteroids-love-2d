@@ -17,8 +17,8 @@ function asteroid.new_asteroid(x, y, size, inherited_vx, inherited_vy)
         direction_deg = 0,
         size = size,
         rotation_deg = 0,
-        angle_increment = 100,
-        friction = 0.99,
+        angle_increment = 3,
+        friction = 0.98,
         on = { destroy = nil },
         points = 0
         --sprite = nil,
@@ -57,11 +57,11 @@ function asteroid.new_asteroid(x, y, size, inherited_vx, inherited_vy)
     function a:get_speed_for_size()
         -- bigger asteroids move slower
         if self.size == asteroid.sizes.LARGE then
-            return 10
+            return 0.1
         elseif self.size == asteroid.sizes.MEDIUM then
-            return 20
+            return 0.25
         else
-            return 30
+            return 0.5
         end
     end
 
@@ -73,16 +73,16 @@ function asteroid.new_asteroid(x, y, size, inherited_vx, inherited_vy)
         local dy = center_y - self.y
         
         -- calculate angle in degrees
-        return math.deg(math.atan(dy, dx))
+        return math.deg(math.atan2(dy, dx))
     end
 
-    function a:update(dt)
+    function a:update()
         -- rotate
-        self.rotation_deg = self.rotation_deg + (self.angle_increment * dt)
+        self.rotation_deg = self.rotation_deg + self.angle_increment
 
         -- direct velocity movement
-        self.x = self.x + self.vx * dt
-        self.y = self.y + self.vy * dt
+        self.x = self.x + self.vx
+        self.y = self.y + self.vy
 
         if self.bbox ~= nil then
             self.bbox:moveTo(self.x, self.y)

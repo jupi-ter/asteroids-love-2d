@@ -18,6 +18,74 @@ game_states = {
 game_state = game_states.PLAYING
 debug_draw = false
 
+--love.run override to lock game to 60 fps
+function love.run()
+    if love.load then love.load(love.arg.parseGameArguments(arg), arg) end
+    
+    -- Fixed timestep variables
+    local fps = 60
+    local frame_time = 1 / fps
+    local lag = 0
+    local last_time = love.timer.getTime()
+    
+    -- We don't want the first frame's dt to include time taken by love.load
+    if love.timer then love.timer.step() end
+    
+    -- Main loop - return a function that gets called each frame
+    return function()
+        -- Calculate delta time
+        local now = love.timer.getTime()
+        local dt = now - last_time
+        last_time = now
+        
+        -- Cap dt to prevent "spiral of death"
+        if dt > 0.25 then
+            dt = 0.25
+        end
+        
+        lag = lag + dt
+        
+        -- Process events
+        if love.event then
+            love.event.pump()
+            for name, a, b, c, d, e, f in love.event.poll() do
+                if name == "quit" then
+                    if not love.quit or not love.quit() then
+                        return a or 0
+                    end
+                end
+                love.handlers[name](a, b, c, d, e, f)
+            end
+        end
+        
+        -- Update at fixed timestep
+        while lag >= frame_time do
+            if love.update then
+                love.update(frame_time)
+            end
+            lag = lag - frame_time
+        end
+        
+        -- Draw
+        if love.graphics and love.graphics.isActive() then
+            love.graphics.origin()
+            love.graphics.clear(love.graphics.getBackgroundColor())
+            
+            if love.draw then
+                love.draw()
+            end
+            
+            love.graphics.present()
+        end
+        
+        -- Lock framerate
+        local elapsed = love.timer.getTime() - now
+        if elapsed < frame_time then
+            love.timer.sleep(frame_time - elapsed)
+        end
+    end
+end
+
 function init_game()
     -- reset globals
     score = 0
@@ -38,7 +106,6 @@ function init_game()
 
     starfield.init() --init stars
 
-    -- only for test
     -- spawn initial asteroids
     spawn_asteroid(20, 20, asteroid.sizes.LARGE)
     spawn_asteroid(screen_width - 20, 20, asteroid.sizes.LARGE)
@@ -133,17 +200,17 @@ function love.load()
 end
 
 function love.update(dt)
-    starfield.update(dt) --always update stars
+    starfield.update() --always update stars
 
     if game_state == game_states.PLAYING then
         if Player ~= nil then
-            Player:update(dt)
+            Player:update()
         end
 
         --update bullets
         for i = #bullets, 1, -1 do
             local b = bullets[i]
-            b:update(dt)
+            b:update()
 
             if b:is_offscreen() then
                 -- remove from collision system
@@ -158,7 +225,7 @@ function love.update(dt)
         -- update asteroids
         for i = #asteroids, 1, -1 do
             local a = asteroids[i]
-            a:update(dt)
+            a:update()
 
             if a.flag_for_deletion then
                 table.remove(asteroids, i)
@@ -168,7 +235,7 @@ function love.update(dt)
         -- update particles
         for i = #particles, 1, -1 do
             local p = particles[i]
-            p:update(dt)
+            p:update()
             
             if p.flag_for_deletion then
                 table.remove(particles, i)
@@ -191,7 +258,7 @@ function love.update(dt)
         -- still update particles for visual effects
         for i = #particles, 1, -1 do
             local p = particles[i]
-            p:update(dt)
+            p:update()
             
             if p.flag_for_deletion then
                 table.remove(particles, i)
@@ -257,15 +324,6 @@ function love.draw()
 end
 
 function draw_playing_state()
-    -- print score and lives
-    love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
-    love.graphics.print("LIVES: " .. math.max(0, lives), 10, 10)
-    love.graphics.print("SCORE: " .. score, 10, 20)
-
-    if high_score > 0 then
-        love.graphics.print("HIGH: " .. high_score, 10, 30)
-    end
-
     -- draw particles
     for i = #particles, 1, -1 do
         local p = particles[i]
@@ -286,6 +344,8 @@ function draw_playing_state()
         local a = asteroids[i]
         a:draw()
     end
+
+    draw_player_data()
 end
 
 function draw_game_over_state()
@@ -326,6 +386,16 @@ function draw_game_over_state()
     local restart_text = "PRESS R TO RESTART"
     local restart_width = love.graphics.getFont():getWidth(restart_text)
     love.graphics.print(restart_text, (screen_width - restart_width) / 2, screen_height / 2 + 30)
+end
+
+function draw_player_data()
+    love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+    love.graphics.print("LIVES: " .. math.max(0, lives), 10, 10)
+    love.graphics.print("SCORE: " .. score, 10, 20)
+
+    if high_score > 0 then
+        love.graphics.print("HIGH: " .. high_score, 10, 30)
+    end
 end
 
 --helper callback functions
