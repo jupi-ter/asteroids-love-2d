@@ -1,2 +1,3 @@
 sprites: cluly - space eaters https://cluly.itch.io/space-eaters
 font: datagoblin - monogram https://datagoblin.itch.io/monogram
+sfx: made using sfxr/bfxr https://www.bfxr.net/
