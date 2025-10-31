@@ -159,6 +159,7 @@ function player.new_player(x, y)
             return
         end
         
+        utils.play_sound(hit_sfx)
         self.state = player.states.DYING
         self.respawn_timer = self.respawn_delay
         

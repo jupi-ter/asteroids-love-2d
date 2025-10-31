@@ -15,8 +15,10 @@ game_states = {
     PLAYING = "playing",
     GAME_OVER = "game over"
 }
+screenshake = 0
 game_state = game_states.PLAYING
 debug_draw = false
+explosion_sound_effects = {}
 
 --love.run override to lock game to 60 fps
 function love.run()
@@ -91,6 +93,7 @@ function init_game()
     score = 0
     lives = 3
     game_state = game_states.PLAYING
+    screenshake = 0
     
     -- reset HC collision system
     hc.resetHash()
@@ -98,7 +101,7 @@ function init_game()
     -- objects
     Player = player.new_player(screen_width/2, screen_height/2)
     Player:init()
-    
+
     -- tables
     bullets = {}
     particles = {}
@@ -113,6 +116,8 @@ function init_game()
 
     -- callbacks (lambdas)
     Player.on.shoot = function(x, y, rot)
+        screenshake = screenshake + 3
+        utils.play_sound(shoot_sfx)
         local b = bullet.new_bullet(x, y, rot)
         table.insert(bullets, b)
     end
@@ -185,10 +190,21 @@ end
 function load_sprites()
     player_center_sprite = utils.load_sprite("ship")
     bullet_sprite = utils.load_sprite("bullet_2")
-    particle_sprite = utils.load_sprite("particle")
-    asteroid_large = utils.load_sprite("asteroid_large")
-    asteroid_medium = utils.load_sprite("asteroid_medium")
-    asteroid_small = utils.load_sprite("asteroid_small")
+    asteroid_large_sprite = utils.load_sprite("asteroid_large")
+    asteroid_medium_sprite = utils.load_sprite("asteroid_medium")
+    asteroid_small_sprite = utils.load_sprite("asteroid_small")
+    heart_sprite = utils.load_sprite("heart")
+end
+
+function load_sounds()
+    shoot_sfx = utils.load_sound("shoot", 0.5)
+    local explo1 = utils.load_sound("boom1", 0.5)
+    local explo2 = utils.load_sound("boom2", 0.5)
+    local explo3 = utils.load_sound("boom3", 0.5)
+    explosion_sound_effects = {
+        explo1, explo2, explo3
+    }
+    hit_sfx = utils.load_sound("hit", 0.5)
 end
 
 function love.load()
@@ -196,6 +212,7 @@ function love.load()
     font:setFilter("nearest", "nearest")
     window_setup()
     load_sprites()
+    load_sounds()
     init_game()
 end
 
@@ -249,8 +266,22 @@ function love.update(dt)
             spawn_new_wave()
         end
 
+        -- Shake decay
+        if screenshake > 10 then
+            screenshake = screenshake * 0.8
+        end
+        if screenshake > 0 then
+            screenshake = screenshake - 1
+        else
+            screenshake = 0
+        end
+
     elseif game_state == game_states.GAME_OVER then
-        
+        --remove this for a funny thing :)
+        if screenshake ~= 0 then
+            screenshake = 0
+        end
+
         if love.keyboard.isDown('r') then
             init_game()
         end
@@ -308,7 +339,12 @@ function love.draw()
     -- center the game world in the window
     local offset_x = (win_w/scale - screen_width) / 2
     local offset_y = (win_h/scale - screen_height) / 2
-    love.graphics.translate(offset_x, offset_y)
+
+    -- Add screenshake
+    local shakeX = (love.math.random() * screenshake) - screenshake / 2
+    local shakeY = (love.math.random() * screenshake) - screenshake / 2
+    
+    love.graphics.translate(offset_x + shakeX, offset_y + shakeY)
 
     --now draw the world :)
     starfield.draw() --always draw stars
@@ -361,7 +397,7 @@ function draw_game_over_state()
     end
     
     -- draw game over screen
-    love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+    utils.set_draw_color(utils.colors.WHITE)
 
     local game_over_text = "GAME OVER"
     local text_width = love.graphics.getFont():getWidth(game_over_text)
@@ -372,11 +408,11 @@ function draw_game_over_state()
     love.graphics.print(final_score_text, (screen_width - score_width) / 2, screen_height / 2)
     
     if score == high_score and high_score > 0 then
-        love.graphics.setColor(utils.colors.YELLOW[1], utils.colors.YELLOW[2], utils.colors.YELLOW[3], 1.0)
+        utils.set_draw_color(utils.colors.WHITE)
         local new_high_text = "NEW HIGH SCORE!"
         local high_width = love.graphics.getFont():getWidth(new_high_text)
         love.graphics.print(new_high_text, (screen_width - high_width) / 2, screen_height / 2 + 10)
-        love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+        utils.reset_draw_color()
     elseif high_score > 0 then
         local high_score_text = "HIGH SCORE: " .. high_score
         local high_width = love.graphics.getFont():getWidth(high_score_text)
@@ -389,12 +425,21 @@ function draw_game_over_state()
 end
 
 function draw_player_data()
-    love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
-    love.graphics.print("LIVES: " .. math.max(0, lives), 10, 10)
-    love.graphics.print("SCORE: " .. score, 10, 20)
+    utils.reset_draw_color()
+    
+    --draw player lives
+    if lives > 0 then
+        for i = 1, lives, 1 do
+            utils.draw_sprite(heart_sprite, 9 + (9 * (i - 1)), 10, 0, 1, 1, false)
+        end
+    end
+
+    love.graphics.print(score, 10, 15)
 
     if high_score > 0 then
-        love.graphics.print("HIGH: " .. high_score, 10, 30)
+        utils.set_draw_color(utils.colors.YELLOW)
+        love.graphics.print("HI: " .. high_score, 10, 30)
+        utils.reset_draw_color()
     end
 end
 
@@ -430,6 +475,12 @@ end
 
 function create_explosion(x,y)
     local scale = (2.5 + math.random())
+    screenshake = screenshake + 6
+    
+    --play a random explosion sound effect
+    local idx = math.random(1, 3)
+    utils.play_sound(explosion_sound_effects[idx])
+    
     for i = 1, 16, 1 do
         create_particle(x, y, scale, true)
     end

@@ -94,26 +94,23 @@ function asteroid.new_asteroid(x, y, size, inherited_vx, inherited_vy)
 
     function a:draw()
         utils.draw_sprite(self.sprite, self.x, self.y, math.rad(self.rotation_deg), 1, 1, true)
-        if self.bbox ~= nil and debug_draw then
-            love.graphics.setColor(1.0, 0.0, 1.0, 0.5)
-            self.bbox:draw('fill')
-            love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
-        end
+        
+        utils.debug_draw(self.bbox)
     end
 
     function a:setup()
        -- setup sprite and bbox and points
         if (self.size == asteroid.sizes.LARGE) then
             self.points = 30
-            self.sprite = asteroid_large
+            self.sprite = asteroid_large_sprite
             self.bbox = hc.circle(x, y, 6)
         elseif (self.size == asteroid.sizes.MEDIUM) then
             self.points = 20
-            self.sprite = asteroid_medium
+            self.sprite = asteroid_medium_sprite
             self.bbox = hc.circle(x, y, 4)
         else
             self.points = 10
-            self.sprite = asteroid_small
+            self.sprite = asteroid_small_sprite
             self.bbox = hc.circle(x, y, 2)
         end
 

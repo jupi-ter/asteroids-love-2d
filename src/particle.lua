@@ -20,11 +20,9 @@ function particle.new_particle(x, y, scale, move)
         speed_x = 0,
         speed_y = 0,
         color = utils.colors.WHITE
-        --sprite = nil,
     }
     
     function part:init()
-        self.sprite = particle_sprite
         if self.move then
             local angle = self.rotation_rad
             local speed = math.random()
@@ -62,9 +60,9 @@ function particle.new_particle(x, y, scale, move)
 
     function part:draw()
         if (not self.flag_for_deletion) then
-            love.graphics.setColor(self.color[1], self.color[2], self.color[3], 1.0)
+            utils.set_draw_color(self.color)
             love.graphics.circle("fill", self.x, self.y, self.scale)
-            love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+            utils.reset_draw_color()
         end
     end
 

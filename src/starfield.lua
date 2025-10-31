@@ -47,12 +47,12 @@ function starfield.draw()
     -- draw all stars as small rectangles
     for i = #stars, 1, -1 do
         local star = stars[i]
-        love.graphics.setColor(star.c[1], star.c[2], star.c[3], 1.0)
+        utils.set_draw_color(star.c)
         love.graphics.rectangle("fill", star.x, star.y, star.size, star.size)
     end
 
     -- reset color
-    love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+    utils.reset_draw_color()
 end
 
 return starfield

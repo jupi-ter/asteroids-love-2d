@@ -96,4 +96,34 @@ function utils.check_all_collisions()
     end
 end
 
+function utils.play_sound(sound)
+    sound:stop()
+    pitchMod = love.math.random(0.8, 1.2)
+    sound:setPitch(pitchMod)
+    sound:play()
+end
+
+function utils.load_sound(soundfile_name, volume)
+    sound = love.audio.newSource("assets/audio/" .. soundfile_name .. ".wav", "static")
+    sound:setVolume(volume)
+    return sound
+end
+
+--pass in a color from out palette
+function utils.set_draw_color(color)
+    love.graphics.setColor(color[1], color[2], color[3], 1.0)
+end
+
+function utils.reset_draw_color()
+    love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+end
+
+function utils.debug_draw(bbox)
+    if bbox ~= nil and debug_draw then
+        utils.set_draw_color(utils.colors.PINK)
+        bbox:draw('fill')
+        utils.reset_draw_color()
+    end
+end
+
 return utils
